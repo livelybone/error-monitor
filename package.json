@@ -1,0 +1,55 @@
+{
+  "name": "error-monitor",
+  "version": "1.0.0",
+  "description": "在浏览器中运行时， 将前端产生的错误（语法错误，资源加载错误）上报（post 提交）至 http://192.168.3.114:5601（外网地址：http://101.68.74.170:25045），使用 Kibana 进行数据分析。 需要注入为 html 中的 js 脚本，并且确保这个 js 执行优先于其他 js 脚本。支持埋点。",
+  "main": "./lib/umd/index.js",
+  "module": "./lib/es/index.js",
+  "unpkg": "./lib/umd/index.js",
+  "scripts": {
+    "build": "rimraf ./lib && cross-env NODE_ENV=production rollup -c",
+    "eslint": "eslint ./ --ext .js --fix",
+    "test": "npm run build && mocha ./test/index.spec.js",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+    "commit": "git-cz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@192.168.3.165:livelybone/error-monitor.git"
+  },
+  "keywords": [
+    "error",
+    "minitor"
+  ],
+  "author": "livelybone",
+  "license": "MIT",
+  "bugs": {
+    "url": "http://192.168.3.165/livelybone/error-monitor/issues"
+  },
+  "homepage": "http://192.168.3.165/livelybone/error-monitor",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.3",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "commitizen": "^3.0.7",
+    "conventional-changelog-cli": "^2.0.12",
+    "cross-env": "^5.2.0",
+    "cz-conventional-changelog": "^2.1.0",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "mocha": "^5.2.0",
+    "rollup": "^1.7.0",
+    "rollup-plugin-babel": "^3.0.7",
+    "rollup-plugin-commonjs": "^9.2.1",
+    "rollup-plugin-license": "^0.8.1",
+    "rollup-plugin-node-resolve": "^4.0.1",
+    "rollup-plugin-uglify": "^6.0.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
