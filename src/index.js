@@ -90,12 +90,12 @@ export default class ErrorMonitor {
    *                                              对应不同的项目
    * @property {String} Message.type              消息类型。可选：
    *                                              [
-   *                                                'error-resource',   // 资源加载报错
-   *                                                'error-runtime',    // 脚本运行时报错
-   *                                                'user-behavior',    // 用户行为统计
-   *                                                'api-error',        // 接口错误
-   *                                                'network-static',   // 网络状况
-   *                                                ...                 // 等等... 可根据情况添加类型
+   *                                                'error-resource',     // 资源加载报错
+   *                                                'error-runtime',      // 脚本运行时报错
+   *                                                'user-behavior',      // 用户行为统计
+   *                                                'api-error',          // 接口错误
+   *                                                'network-statistics', // 网络状况
+   *                                                ...                   // 等等... 可根据情况添加类型
    *                                              ]
    * @property {String} Message.url               页面 url。消息发送所在页面的 url
    * @property {String} Message.message           消息内容
