@@ -1,39 +1,95 @@
 # error-monitor
-![gzip with dependencies: kb](https://img.shields.io/badge/gzip--with--dependencies-kb-brightgreen.svg "gzip with dependencies: kb")
-![pkg.module](https://img.shields.io/badge/pkg.module-supported-blue.svg "pkg.module")
+![gzip with dependencies: 2kb](https://img.shields.io/badge/gzip--with--dependencies-2kb-brightgreen.svg "gzip with dependencies: 2kb")
+![error-monitor](https://img.shields.io/badge/error--monitor-done-blue.svg "error-monitor")
 
-> `pkg.module supported`, which means that you can apply tree-shaking in you project
+在浏览器中运行时， 将前端产生的错误（语法错误，资源加载错误）上报（post 提交）至服务器。确保这个 js 执行优先于其他 js 脚本。支持埋点。
 
-在浏览器中运行时， 将前端产生的错误（语法错误，资源加载错误）上报（post 提交）至 http://192.168.3.114:5601（外网地址：http://101.68.74.170:25045），使用 Kibana 进行数据分析。 需要注入为 html 中的 js 脚本，并且确保这个 js 执行优先于其他 js 脚本。支持埋点。
+默认使用 Geolocation.getCurrentPosition() 来获取地理位置，你也可以在 postMsg 这个方法传入 position 来自定义位置
 
-## repository
-git@192.168.3.165:livelybone/error-monitor.git
-
-## Demo
-http://192.168.3.165/livelybone/error-monitor
-
-## Installation
-```bash
-npm i -S error-monitor
-```
+项目结构使用 [npm-module-generator](https://www.npmjs.com/package/@livelybone/npm-module-generator) 生成
 
 ## Global name
 `ErrorMonitor`
 
 ## Usage
-```js
-import * as ErrorMonitor from 'error-monitor';
-```
-
-when you want to set this module as external while you are developing another module, you should import it like this:
-```js
-import * as ErrorMonitor  from 'error-monitor'
-
-// then use it by need
-```
-
-Use in html, see what your can use in [CDN: unpkg](https://unpkg.com/error-monitor/lib/umd/)
+> 1.Use script
 ```html
-<-- use what you want -->
-<script src="https://unpkg.com/error-monitor/lib/umd/<--module-->.js"></script>
+<html>
+<head>
+  <script src="./lib/umd/index.js"></script>
+  <script>
+  window.errorMonitor = new ErrorMonitor({
+    baseUrl: 'backendUrl',
+    dep: 'your dep',
+    project: 'your project',
+  })
+  </script>
+</head>
+</html>
+```
+> 2.Internal js
+```html
+<html>
+<head>
+  <script>
+  <!-- js about `./lib/umd/index.js` -->
+  </script>
+  <script>
+  window.errorMonitor = new ErrorMonitor({
+    baseUrl: 'backendUrl',
+    dep: 'your dep',
+    project: 'your project',
+  })
+  </script>
+</head>
+</html>
+```
+
+## 埋点
+
+> 示例1：代码错误
+
+```js
+try{
+  // code
+} catch(e){
+  window.errorMonitor.postMsg({
+    type: 'error-runtime',
+    message: e.message,
+    details: {
+      stack: e.stack,
+    },
+  })
+}
+```
+
+> 示例2：接口报错
+
+```js
+http.get('/**')
+  .catch((e)=>{
+    window.errorMonitor.postMsg({
+      type: 'api-error',
+      message: e.message,
+      details:{
+        api: '/**',
+      },
+    })
+  })
+```
+
+> 示例3：网络状况统计
+
+```js
+const start = Date.now()
+http.get('/**')
+  .then(()=>{
+    window.errorMonitor.postMsg({
+      type: 'network-static',
+      message: `Api response time is ${Date.now() - start}`,
+      details:{
+        api: '/**',
+      },
+    })
+  })
 ```

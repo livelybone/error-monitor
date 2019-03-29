@@ -9,7 +9,6 @@ module.exports = {
   },
   'extends': ['eslint:recommended', 'airbnb-base'],
   'rules': {
-    // allow debugger during development
     'quote-props': [2, 'consistent'],
     'import/prefer-default-export': [0],
     'linebreak-style': 'off',
@@ -18,6 +17,6 @@ module.exports = {
     'object-curly-newline': 'off',
     'camelcase': 'off',
     'no-mixed-operators': 'off',
-    'semi': 'off',
+    'semi': 'off'
   },
 }

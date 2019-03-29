@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ErrorMonitor</title>
   <script src="../lib/umd/index.js"></script>
+  <script>
+  window.errorMonitor = new ErrorMonitor({
+    baseUrl: 'http://127.0.0.1',
+    dep: 'test',
+    project: 'test',
+  })
+  </script>
+  <link rel="stylesheet" href="../lib/umd/index.s">
+  <!--<script src="http://localhost/test.js"></script>-->
 </head>
 <body>
 <div id="module"></div>
@@ -12,6 +21,8 @@
 <script>
 var module = document.getElementById('module')
 // do something ...
+// throw 1
+window.errorMonitor.postMsg({ type: 'error-runtime', message: 'just some error' })
 </script>
 </body>
 </html>
