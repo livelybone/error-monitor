@@ -79,6 +79,7 @@ http.get('/**')
       message: e.message,
       details:{
         api: '/**',
+        error: e,
       },
     })
   })
@@ -90,12 +91,16 @@ http.get('/**')
 const start = Date.now()
 http.get('/**')
   .then(()=>{
-    window.errorMonitor.postMsg({
-      type: 'network-static',
-      message: `Api response time is ${Date.now() - start}`,
-      details:{
-        api: '/**',
-      },
-    })
+    const time = Date.now() - start
+    if(time > 2000) {
+      window.errorMonitor.postMsg({
+        type: 'network-static',
+        message: `Long response time(greater than 2 second): \`/**\``,
+        details:{
+          api: '/**',
+          time, 
+        },
+      })
+    }
   })
 ```
