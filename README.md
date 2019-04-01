@@ -6,6 +6,12 @@
 
 默认使用 Geolocation.getCurrentPosition() 来获取地理位置，你也可以在 postMsg 这个方法传入 position 来自定义位置
 
+> 可选监控预警策略：
+> 1. js 代码报错，全局监控实现
+> 2. 资源加载错误，全局监控实现
+> 3. 接口响应超过 2s 触发预警，需要埋点
+> 4. 接口报错（status >= 300），需要埋点
+
 项目结构使用 [npm-module-generator](https://www.npmjs.com/package/@livelybone/npm-module-generator) 生成
 
 ## Global name
