@@ -1,5 +1,5 @@
 import Http from './Http'
-import { getPosition, parseObj } from './utils'
+import { parseObj } from './utils'
 
 export default class ErrorMonitor {
   /**
@@ -71,11 +71,12 @@ export default class ErrorMonitor {
           },
         )
       }
-      if (position) {
-        send(position)
-      } else {
-        getPosition(send)
-      }
+      // if (position) {
+      //   send(position)
+      // } else {
+      //   getPosition(send)
+      // }
+      send(position)
     }
   }
 

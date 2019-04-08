@@ -43,32 +43,32 @@ export function parseObj(target) {
   return obj
 }
 
-/**
- * 获取地理位置
- * */
-export const getPosition = (() => {
-  const {
-    navigator: { geolocation = null } = {},
-  } = window || {}
-  let res
-  return (callback) => {
-    const cb = (position) => {
-      res = position
-      callback(position)
-    }
-    if (res === undefined && geolocation) {
-      geolocation
-        .getCurrentPosition(
-          // success
-          position => cb(parseObj(position)),
-          // error
-          (e) => {
-            cb({ error: `Get position failed: ${e.message}` })
-          },
-          { timeout: 1000 },
-        )
-    } else {
-      cb(res || null)
-    }
-  }
-})()
+// /**
+//  * 获取地理位置
+//  * */
+// export const getPosition = (() => {
+//   const {
+//     navigator: { geolocation = null } = {},
+//   } = window || {}
+//   let res
+//   return (callback) => {
+//     const cb = (position) => {
+//       res = position
+//       callback(position)
+//     }
+//     if (res === undefined && geolocation) {
+//       geolocation
+//         .getCurrentPosition(
+//           // success
+//           position => cb(parseObj(position)),
+//           // error
+//           (e) => {
+//             cb({ error: `Get position failed: ${e.message}` })
+//           },
+//           { timeout: 1000 },
+//         )
+//     } else {
+//       cb(res || null)
+//     }
+//   }
+// })()

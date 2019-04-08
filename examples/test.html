@@ -7,12 +7,12 @@
   <script src="../lib/umd/index.js"></script>
   <script>
   window.errorMonitor = new ErrorMonitor({
-    baseUrl: 'http://127.0.0.1',
-    dep: 'test',
+    baseUrl: 'http://101.68.74.170:25045/msg',
+    dep: 'exchange',
     project: 'test',
   })
   </script>
-  <link rel="stylesheet" href="../lib/umd/index.s">
+  <link rel="stylesheet" href="../lib/umd/index.js">
   <!--<script src="http://localhost/test.js"></script>-->
 </head>
 <body>
@@ -22,7 +22,7 @@
 var module = document.getElementById('module')
 // do something ...
 // throw 1
-window.errorMonitor.postMsg({ type: 'error-runtime', message: 'just some error' })
+window.errorMonitor.postMsg({ type: 'error-runtime', level: 'error', message: 'just some error' })
 </script>
 </body>
 </html>
