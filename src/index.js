@@ -109,7 +109,7 @@ export default class ErrorMonitor {
    *                                              ]
    * @property {String} Message.url               页面 url。消息发送所在页面的 url
    * @property {String} Message.message           消息内容
-   * @property {Object} Message.details           信息详情
+   * @property {Object} [Message.details]         信息详情
    * @property {Object} [Message.position]        访问的地理位置
    * @property {String} [Message.userAgent]       客户端信息，比如：浏览器类型
    *
