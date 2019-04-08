@@ -4,7 +4,7 @@ import { parseObj } from './utils'
 export default class ErrorMonitor {
   /**
    * @param {Object} config
-   * @param {String} config.baseUrl               服务器地址
+   * @param {String} config.baseUrl               日志服务器地址
    * @param {String} config.logsource             固定参数，值需要与运维商量约定，目前为 'http'
    * @param {String} config.dep                   服务端确定的用来分割域（不同的域
    *                                              在后台需要切换才能界面查看）的字段，值需要与运维商量约定
@@ -111,7 +111,7 @@ export default class ErrorMonitor {
    * @property {String} Message.url               页面 url。消息发送所在页面的 url
    * @property {String} Message.message           消息内容
    * @property {Object} [Message.details]         信息详情
-   * @property {Object} [Message.position]        访问的地理位置
+   * @property {Object} [Message.position]        访问的地理位置，可不传。实际上，更推荐由后端处理
    * @property {String} [Message.userAgent]       客户端信息，比如：浏览器类型
    *
    * @return Message
