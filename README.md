@@ -109,5 +109,24 @@ http.get('/**')
 > 1. 对接 [bugly](https://bugly.qq.com/v2/)，然后使用 webhook 做集成。bugly 账号最好统一管理
 > 2. 直接借鉴此方案，开发适用于 app 的库
 
+## 钉钉告警对接
+> 1. 对 level 为 'error', 'warn' 的日志进行告警
+> 2. 对告警做数量限制，比如：每 10 次相同错误触发 1 次钉钉告警
+> 3. 如何判断日志是否相同：对比 level, type, message 三个字段，相同则判断为同一个日志
+
+```js
+// 日志格式
+const Message = { 
+  fields: Object,
+  type: String,
+  level: String,
+  message: String,
+  url: String,
+  position: Object|String,
+  userAgent: String,
+  details: Object,
+}
+```
+ 
 ## To do list
 > 1. 增加安全性，方案：签名（加密验证）+ 代码混淆，需要与运维商定

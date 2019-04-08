@@ -1,6 +1,6 @@
 {
   "name": "error-monitor",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "在浏览器中运行时， 将前端产生的错误（语法错误，资源加载错误）上报（post 提交）至服务器。确保这个 js 执行优先于其他 js 脚本。支持埋点。",
   "main": "./lib/umd/index.js",
   "module": "./lib/es/index.js",

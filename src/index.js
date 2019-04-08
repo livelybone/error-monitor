@@ -48,7 +48,7 @@ export default class ErrorMonitor {
     )
   }
 
-  postMsg({ type, message, position, details, callbacks }, probability) {
+  postMsg({ type, level, message, position, details, callbacks }, probability) {
     // 判断消息是否发送
     // probability 值越大，消息发送的概率就越大
     const shouldSend = Math.random() <= (probability || this.probability)
@@ -58,7 +58,7 @@ export default class ErrorMonitor {
       const send = (pos) => {
         this.http.post(
           '',
-          this.buildMsg({ type, message, position: pos, details }),
+          this.buildMsg({ type, level, message, position: pos, details }),
           {
             onResolve: (res) => {
               console.log('ErrorMonitor: Error post successed')
@@ -97,6 +97,16 @@ export default class ErrorMonitor {
    *                                                'network-statistics', // 网络状况
    *                                                ...                   // 等等... 可根据情况添加类型
    *                                              ]
+   * @property {String} Message.level             日志等级，可选：
+   *                                              [
+   *                                                'error',    // 错误，比如 'error-resource',
+   *                                                               'error-runtime', 'api-error' 这些
+   *                                                               类型就属于错误等级，比较紧急
+   *                                                'warn',     // 警告，但不是错误，不太紧急
+   *                                                'normal',   // 正常，，比如 'user-behavior',
+   *                                                               'network-statistics' 这些
+   *                                                               类型是用来做统计，属于正常
+   *                                              ]
    * @property {String} Message.url               页面 url。消息发送所在页面的 url
    * @property {String} Message.message           消息内容
    * @property {Object} Message.details           信息详情
@@ -105,10 +115,11 @@ export default class ErrorMonitor {
    *
    * @return Message
    * */
-  buildMsg({ type, message, position, details }) {
+  buildMsg({ type, level = 'error', message, position, details }) {
     return {
       fields: this.fields,
       type,
+      level,
       url: window.location.pathname,
       message,
       position,
