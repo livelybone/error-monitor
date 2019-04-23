@@ -45,6 +45,7 @@
     baseUrl: 'backendUrl',
     dep: 'your dep',
     project: 'your project',
+    platform: 'the platform your project run in',
   })
   </script>
 </head>
@@ -118,6 +119,7 @@ http.get('/**')
 // 日志格式
 const Message = { 
   fields: Object,
+  platform: String,
   type: String,
   level: String,
   message: String,
