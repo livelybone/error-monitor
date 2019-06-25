@@ -45,6 +45,7 @@
     baseUrl: 'backendUrl',
     project: 'your project',
     platform: 'the platform your project run in',
+    userAgent: 'your custom userAgent, default to window.navigator.userAgent',
   })
   </script>
 </head>

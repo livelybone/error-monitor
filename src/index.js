@@ -7,12 +7,13 @@ export default class ErrorMonitor {
    * @param {String} config.baseUrl               日志服务器地址
    * @param {String} config.project               项目名称
    * @param {String} config.platform              项目运行平台
+   * @param {String} config.userAgent             项目运行平台
    * @param {Number} [config.probability]         消息发送率。当网站访问量很大(比如：百万级千万级 pv)
    *                                              错误出现的频率就会相当的大
    *                                              因此可以通过 probability 来限制错误发送的数量
    *                                              值越大，消息发送的概率就越大
    * */
-  constructor({ baseUrl, project, platform, probability = 1 }) {
+  constructor({ baseUrl, project, platform, userAgent, probability = 1 }) {
     if (!baseUrl) {
       throw new Error('Param `baseUrl` is needed')
     }
@@ -25,7 +26,7 @@ export default class ErrorMonitor {
 
     this.http = new Http(baseUrl)
     this.probability = probability
-    this.fields = { project, hostname: window.location.host, platform }
+    this.fields = { project, hostname: window.location.host, platform, userAgent }
     this.init()
   }
 
@@ -46,7 +47,7 @@ export default class ErrorMonitor {
     )
   }
 
-  postMsg({ url = '', type, level, message, position, userAgent, details, callbacks }, probability) {
+  postMsg({ url = '', type, level, message, position, details, callbacks }, probability) {
     // 判断消息是否发送
     // probability 值越大，消息发送的概率就越大
     const shouldSend = Math.random() <= (probability || this.probability)
@@ -56,7 +57,7 @@ export default class ErrorMonitor {
       const send = (pos) => {
         this.http.post(
           url,
-          this.buildMsg({ type, level, message, position: pos, userAgent, details }),
+          this.buildMsg({ type, level, message, position: pos, details }),
           {
             onResolve: (res) => {
               console.log('ErrorMonitor: Error post successed')
@@ -120,7 +121,7 @@ export default class ErrorMonitor {
    *
    * @return Message
    * */
-  buildMsg({ type, level = 'error', message, position, userAgent, details }) {
+  buildMsg({ type, level = 'error', message, position, details }) {
     return {
       ...this.fields,
       type,
@@ -128,7 +129,7 @@ export default class ErrorMonitor {
       url: window.location.pathname,
       message,
       position,
-      userAgent: userAgent || window.navigator.userAgent,
+      userAgent: this.fields.userAgent || window.navigator.userAgent,
       details,
     }
   }
