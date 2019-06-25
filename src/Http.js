@@ -25,7 +25,7 @@ function createHttp() {
 }
 
 function buildUrl(baseUrl, url) {
-  if (/^http/.test(url)) return url
+  if (/^https?:\/\//.test(url)) return url
   return baseUrl.replace(/\/*$/, '') + (url ? url.replace(/^\/*/, '/') : '')
 }
 

@@ -26,7 +26,6 @@
   <script>
   window.errorMonitor = new ErrorMonitor({
     baseUrl: 'backendUrl',
-    dep: 'your dep',
     project: 'your project',
     platform: 'the platform your project run in',
   })
@@ -44,7 +43,6 @@
   <script>
   window.errorMonitor = new ErrorMonitor({
     baseUrl: 'backendUrl',
-    dep: 'your dep',
     project: 'your project',
     platform: 'the platform your project run in',
   })

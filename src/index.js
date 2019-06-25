@@ -5,9 +5,6 @@ export default class ErrorMonitor {
   /**
    * @param {Object} config
    * @param {String} config.baseUrl               日志服务器地址
-   * @param {String} config.logsource             固定参数，值需要与运维商量约定，目前为 'http'
-   * @param {String} config.dep                   服务端确定的用来分割域（不同的域
-   *                                              在后台需要切换才能界面查看）的字段，值需要与运维商量约定
    * @param {String} config.project               项目名称
    * @param {String} config.platform              项目运行平台
    * @param {Number} [config.probability]         消息发送率。当网站访问量很大(比如：百万级千万级 pv)
@@ -15,12 +12,9 @@ export default class ErrorMonitor {
    *                                              因此可以通过 probability 来限制错误发送的数量
    *                                              值越大，消息发送的概率就越大
    * */
-  constructor({ baseUrl, logsource = 'http', dep, project, platform, probability = 1 }) {
+  constructor({ baseUrl, project, platform, probability = 1 }) {
     if (!baseUrl) {
       throw new Error('Param `baseUrl` is needed')
-    }
-    if (!dep) {
-      throw new Error('Param `dep` is needed')
     }
     if (!project) {
       throw new Error('Param `project` is needed')
@@ -31,8 +25,7 @@ export default class ErrorMonitor {
 
     this.http = new Http(baseUrl)
     this.probability = probability
-    this.fields = { logsource, dep, project, logtype: window.location.host }
-    this.platform = platform
+    this.fields = { project, hostname: window.location.host, platform }
     this.init()
   }
 
@@ -43,17 +36,17 @@ export default class ErrorMonitor {
         const error = parseObj(ev)
         if (ev.message) {
           // 脚本错误
-          this.postMsg({ type: 'error-runtime', message: ev.message, details: { error } })
+          this.postMsg({ type: 'error-runtime', level: 'warn', message: ev.message, details: { error } })
         } else {
           // 资源加载错误
-          this.postMsg({ type: 'error-resource', message: error.target, details: { error } })
+          this.postMsg({ type: 'error-resource', level: 'warn', message: error.target, details: { error } })
         }
       },
       true,
     )
   }
 
-  postMsg({ type, level, message, position, details, callbacks }, probability) {
+  postMsg({ url = '', type, level, message, position, userAgent, details, callbacks }, probability) {
     // 判断消息是否发送
     // probability 值越大，消息发送的概率就越大
     const shouldSend = Math.random() <= (probability || this.probability)
@@ -62,8 +55,8 @@ export default class ErrorMonitor {
       const { onSuccess, onFailed } = callbacks || {}
       const send = (pos) => {
         this.http.post(
-          '',
-          this.buildMsg({ type, level, message, position: pos, details }),
+          url,
+          this.buildMsg({ type, level, message, position: pos, userAgent, details }),
           {
             onResolve: (res) => {
               console.log('ErrorMonitor: Error post successed')
@@ -87,12 +80,8 @@ export default class ErrorMonitor {
 
   /**
    * @typedef  {Object} Message                   除了下面的属性之外，可自由添加属性
-   * @property {Object} Message.fields
-   * @property {String} Message.fields.logsource  固定参数，值需要与运维商量约定，目前为 'http'
-   * @property {String} Message.fields.dep        服务端确定的用来分割域（不同的域
-   *                                              在后台需要切换才能界面查看）的字段，值需要与运维商量约定
-   * @property {String} Message.fields.logtype    站点的名称或域名
-   * @property {String} Message.fields.project    项目名称。前端可能使用微服务化，使得不同的页面可能
+   * @property {String} Message.hostname          站点的名称或域名
+   * @property {String} Message.project           项目名称。前端可能使用微服务化，使得不同的页面可能
    *                                              对应不同的项目
    * @property {String} Message.platform          项目运行平台。可选：
    *                                              [
@@ -100,6 +89,8 @@ export default class ErrorMonitor {
    *                                                'web-admin',          // 后台
    *                                                'app-android',        // android
    *                                                'app-ios',            // ios
+   *                                                'client-windows',     // windows
+   *                                                'client-linux',       // linux
    *                                                ...                   // 自定义... 可根据情况添加类型
    *                                              ]
    * @property {String} Message.type              消息类型。可选：
@@ -129,16 +120,15 @@ export default class ErrorMonitor {
    *
    * @return Message
    * */
-  buildMsg({ type, level = 'error', message, position, details }) {
+  buildMsg({ type, level = 'error', message, position, userAgent, details }) {
     return {
-      fields: this.fields,
-      platform: this.platform,
+      ...this.fields,
       type,
       level,
       url: window.location.pathname,
       message,
       position,
-      userAgent: window.navigator.userAgent,
+      userAgent: userAgent || window.navigator.userAgent,
       details,
     }
   }
