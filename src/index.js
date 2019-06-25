@@ -98,8 +98,8 @@ export default class ErrorMonitor {
    *                                              [
    *                                                'error-resource',     // 资源加载报错
    *                                                'error-runtime',      // 脚本运行时报错
+   *                                                'error-api',          // 接口错误
    *                                                'user-behavior',      // 用户行为统计
-   *                                                'api-error',          // 接口错误
    *                                                'network-statistics', // 网络状况
    *                                                ...                   // 等等... 可根据情况添加类型
    *                                              ]
