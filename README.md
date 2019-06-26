@@ -4,7 +4,7 @@
 
 在浏览器中运行时， 将前端产生的错误（语法错误，资源加载错误）上报（post 提交）至服务器。确保这个 js 执行优先于其他 js 脚本。支持埋点。
 
-默认使用 Geolocation.getCurrentPosition() 来获取地理位置，你也可以在 postMsg 这个方法传入 position 来自定义位置
+默认使用 Geolocation.getCurrentPosition() 来获取地理位置，你也可以在 postLog 这个方法传入 position 来自定义位置
 
 > 可选监控预警策略：
 > 1. js 代码报错，全局监控实现
@@ -28,6 +28,8 @@
     baseUrl: 'backendUrl',
     project: 'your project',
     platform: 'the platform your project run in',
+    userAgent: 'your custom userAgent, default to window.navigator.userAgent',
+    batch: true, // 是否默认批量上传，全局错误的上传格式（Array or Object）依赖于这个值
   })
   </script>
 </head>
@@ -46,11 +48,36 @@
     project: 'your project',
     platform: 'the platform your project run in',
     userAgent: 'your custom userAgent, default to window.navigator.userAgent',
+    batch: true, // 是否默认批量上传，全局错误的上传格式（Array or Object）依赖于这个值
   })
   </script>
 </head>
 </html>
 ```
+
+```js
+// 上传日志格式
+const Log = { 
+  hostname: String,
+  project: String,
+  platform: String,
+  type: String,
+  level: String,
+  message: String,
+  url: String,
+  position: Object|String,
+  userAgent: String,
+  details: Object,
+}
+```
+
+## 方法
+
+### postLog
+> ({ type, level, message, position, details }, { url, callbacks, probability }) => void
+
+### postLogBatch
+> (Array<{ type, level, message, position, details }>, { url, callbacks, probability }) => void
 
 ## 埋点
 
@@ -60,7 +87,7 @@
 try{
   // code
 } catch(e){
-  window.errorMonitor.postMsg({
+  window.errorMonitor.postLog({
     type: 'error-runtime',
     message: e.message,
     details: {
@@ -75,7 +102,7 @@ try{
 ```js
 http.get('/**')
   .catch((e)=>{
-    window.errorMonitor.postMsg({
+    window.errorMonitor.postLog({
       type: 'api-error',
       message: e.message,
       details:{
@@ -94,7 +121,7 @@ http.get('/**')
   .then(()=>{
     const time = Date.now() - start
     if(time > 2000) {
-      window.errorMonitor.postMsg({
+      window.errorMonitor.postLog({
         type: 'network-static',
         message: `Long response time(greater than 2 second): \`/**\``,
         details:{
@@ -114,21 +141,6 @@ http.get('/**')
 > 1. 对 level 为 'error', 'warn' 的日志进行告警
 > 2. 对告警做数量限制，比如：每 10 次相同错误触发 1 次钉钉告警
 > 3. 如何判断日志是否相同：对比 level, type, message 三个字段，相同则判断为同一个日志
-
-```js
-// 日志格式
-const Message = { 
-  fields: Object,
-  platform: String,
-  type: String,
-  level: String,
-  message: String,
-  url: String,
-  position: Object|String,
-  userAgent: String,
-  details: Object,
-}
-```
  
 ## To do list
 > 1. 增加安全性，方案：签名（加密验证）+ 代码混淆，需要与运维商定

@@ -8,7 +8,6 @@
   <script>
   window.errorMonitor = new ErrorMonitor({
     baseUrl: 'http://101.68.74.170:25045/msg',
-    dep: 'exchange',
     project: 'test',
     platform: 'web',
   })
@@ -23,7 +22,7 @@
 var module = document.getElementById('module')
 // do something ...
 // throw 1
-window.errorMonitor.postMsg({ type: 'error-runtime', level: 'error', message: 'just some error' })
+window.errorMonitor.postLog({ type: 'error-runtime', level: 'error', message: 'just some error' })
 </script>
 </body>
 </html>

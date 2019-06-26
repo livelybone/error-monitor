@@ -8,12 +8,13 @@ export default class ErrorMonitor {
    * @param {String} config.project               项目名称
    * @param {String} config.platform              项目运行平台
    * @param {String} config.userAgent             项目运行平台
+   * @param {String} [config.batch]               是否默认批量上传，全局错误的上传格式（Array or Object）依赖于这个值
    * @param {Number} [config.probability]         消息发送率。当网站访问量很大(比如：百万级千万级 pv)
    *                                              错误出现的频率就会相当的大
    *                                              因此可以通过 probability 来限制错误发送的数量
    *                                              值越大，消息发送的概率就越大
    * */
-  constructor({ baseUrl, project, platform, userAgent, probability = 1 }) {
+  constructor({ baseUrl, project, platform, userAgent, batch, probability = 1 }) {
     if (!baseUrl) {
       throw new Error('Param `baseUrl` is needed')
     }
@@ -27,6 +28,7 @@ export default class ErrorMonitor {
     this.http = new Http(baseUrl)
     this.probability = probability
     this.fields = { project, hostname: window.location.host, platform, userAgent }
+    this.batch = batch
     this.init()
   }
 
@@ -35,56 +37,62 @@ export default class ErrorMonitor {
       'error',
       (ev) => {
         const error = parseObj(ev)
+        let log
         if (ev.message) {
           // 脚本错误
-          this.postMsg({ type: 'error-runtime', level: 'warn', message: ev.message, details: { error } })
+          log = { type: 'error-runtime', level: 'warn', message: ev.message, details: { error } }
         } else {
           // 资源加载错误
-          this.postMsg({ type: 'error-resource', level: 'warn', message: error.target, details: { error } })
+          log = { type: 'error-resource', level: 'warn', message: error.target, details: { error } }
+        }
+        if (this.batch) {
+          this.postLogBatch([log])
+        } else {
+          this.postLog(log)
         }
       },
       true,
     )
   }
 
-  postMsg({ url = '', type, level, message, position, details, callbacks }, probability) {
+  send(logObj, { url = '', callbacks = {}, probability }) {
     // 判断消息是否发送
     // probability 值越大，消息发送的概率就越大
     const shouldSend = Math.random() <= (probability || this.probability)
 
     if (shouldSend) {
-      const { onSuccess, onFailed } = callbacks || {}
-      const send = (pos) => {
-        this.http.post(
-          url,
-          this.buildMsg({ type, level, message, position: pos, details }),
-          {
-            onResolve: (res) => {
-              console.log('ErrorMonitor: Error post successed')
-              if (typeof onSuccess === 'function') onSuccess(res)
-            },
-            onReject: (res) => {
-              console.log(`ErrorMonitor: Error post failed(${res.message})`)
-              if (typeof onFailed === 'function') onFailed(res)
-            },
+      const { onSuccess, onFailed } = callbacks
+      this.http.post(
+        url,
+        logObj,
+        {
+          onResolve: (res) => {
+            console.log('ErrorMonitor: Error post successed')
+            if (typeof onSuccess === 'function') onSuccess(res)
           },
-        )
-      }
-      // if (position) {
-      //   send(position)
-      // } else {
-      //   getPosition(send)
-      // }
-      send(position)
+          onReject: (res) => {
+            console.log(`ErrorMonitor: Error post failed(${res.message})`)
+            if (typeof onFailed === 'function') onFailed(res)
+          },
+        },
+      )
     }
   }
 
+  postLog(log, { url, callbacks, probability } = {}) {
+    this.send(this.buildLog(log), { url, callbacks, probability })
+  }
+
+  postLogBatch(logs, { url, callbacks, probability } = {}) {
+    this.send(logs.map(log => this.buildLog(log)), { url, callbacks, probability })
+  }
+
   /**
-   * @typedef  {Object} Message                   除了下面的属性之外，可自由添加属性
-   * @property {String} Message.hostname          站点的名称或域名
-   * @property {String} Message.project           项目名称。前端可能使用微服务化，使得不同的页面可能
+   * @typedef  {Object} Log                   除了下面的属性之外，可自由添加属性
+   * @property {String} Log.hostname          站点的名称或域名
+   * @property {String} Log.project           项目名称。前端可能使用微服务化，使得不同的页面可能
    *                                              对应不同的项目
-   * @property {String} Message.platform          项目运行平台。可选：
+   * @property {String} Log.platform          项目运行平台。可选：
    *                                              [
    *                                                'web',                // 前台
    *                                                'web-admin',          // 后台
@@ -94,7 +102,7 @@ export default class ErrorMonitor {
    *                                                'client-linux',       // linux
    *                                                ...                   // 自定义... 可根据情况添加类型
    *                                              ]
-   * @property {String} Message.type              消息类型。可选：
+   * @property {String} Log.type              消息类型。可选：
    *                                              [
    *                                                'error-resource',     // 资源加载报错
    *                                                'error-runtime',      // 脚本运行时报错
@@ -103,7 +111,7 @@ export default class ErrorMonitor {
    *                                                'network-statistics', // 网络状况
    *                                                ...                   // 等等... 可根据情况添加类型
    *                                              ]
-   * @property {String} Message.level             日志等级，可选：
+   * @property {String} Log.level             日志等级，可选：
    *                                              [
    *                                                'error',    // 错误，比如 'error-resource',
    *                                                               'error-runtime', 'api-error' 这些
@@ -113,15 +121,15 @@ export default class ErrorMonitor {
    *                                                               'network-statistics' 这些
    *                                                               类型是用来做统计，属于正常
    *                                              ]
-   * @property {String} Message.url               页面 url。消息发送所在页面的 url
-   * @property {String} Message.message           消息内容
-   * @property {Object} [Message.details]         信息详情
-   * @property {Object} [Message.position]        访问的地理位置，可不传。实际上，更推荐由后端处理
-   * @property {String} [Message.userAgent]       客户端信息，比如：浏览器类型
+   * @property {String} Log.url               页面 url。消息发送所在页面的 url
+   * @property {String} Log.message           消息内容
+   * @property {Object} [Log.details]         信息详情
+   * @property {Object} [Log.position]        访问的地理位置，可不传。实际上，更推荐由后端处理
+   * @property {String} [Log.userAgent]       客户端信息，比如：浏览器类型
    *
-   * @return Message
+   * @return Log
    * */
-  buildMsg({ type, level = 'error', message, position, details }) {
+  buildLog({ type, level = 'error', message, position, details }) {
     return {
       ...this.fields,
       type,
