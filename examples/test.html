@@ -22,7 +22,8 @@
 var module = document.getElementById('module')
 // do something ...
 // throw 1
-window.errorMonitor.postLog({ type: 'error-runtime', level: 'error', message: 'just some error' })
+window.errorMonitor.postLog({ type: 'error-runtime', level: 'error', message: 'just some error1' })
+window.errorMonitor.postLogBatch([{ type: 'error-runtime', level: 'error', message: 'just some error2' }])
 </script>
 </body>
 </html>
