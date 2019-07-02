@@ -123,13 +123,16 @@ export default class ErrorMonitor {
    *                                              ]
    * @property {String} Log.url               页面 url。消息发送所在页面的 url
    * @property {String} Log.message           消息内容
+   * @property {Object} [Log.userId]          用户 ID
+   * @property {Object} [Log.api]             涉及到的 api
+   * @property {Object} [Log.element]         涉及到的元素
    * @property {Object} [Log.details]         信息详情
    * @property {Object} [Log.position]        访问的地理位置，可不传。实际上，更推荐由后端处理
    * @property {String} [Log.userAgent]       客户端信息，比如：浏览器类型
    *
    * @return Log
    * */
-  buildLog({ type, level = 'error', message, position, details }) {
+  buildLog({ type, level = 'error', message, position, userId, api, element, details }) {
     return {
       ...this.fields,
       type,
@@ -138,6 +141,9 @@ export default class ErrorMonitor {
       message,
       position,
       userAgent: this.fields.userAgent || window.navigator.userAgent,
+      userId,
+      api,
+      element,
       details,
     }
   }
